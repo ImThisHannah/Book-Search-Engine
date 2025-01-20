@@ -1,6 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
+// TO DO:
+// Update the auth middleware function to work with the GraphQL API.
+
 import dotenv from 'dotenv';
 dotenv.config();
 

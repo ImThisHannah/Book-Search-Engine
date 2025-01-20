@@ -17,6 +17,9 @@ const SavedBooks = () => {
   // use this to determine if `useEffect()` hook needs to run again
   const userDataLength = Object.keys(userData).length;
 
+  //TO DO:  * Remove the `useEffect()` hook that sets the state for `UserData`.
+// Instead, use the `useQuery()` hook to execute the `GET_ME` query on load 
+// and save it to a variable named `userData`.
   useEffect(() => {
     const getUserData = async () => {
       try {
@@ -43,6 +46,8 @@ const SavedBooks = () => {
   }, [userDataLength]);
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
+
+
   const handleDeleteBook = async (bookId: string) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
@@ -56,7 +61,9 @@ const SavedBooks = () => {
       if (!response.ok) {
         throw new Error('something went wrong!');
       }
-
+    //TO DO: Use the `useMutation()` hook to execute the `REMOVE_BOOK` mutation 
+    // in the `handleDeleteBook()` function instead of the `deleteBook()` function that's imported from the `API` file. 
+    // (Make sure you keep the `removeBookId()` function in place!)
       const updatedUser = await response.json();
       setUserData(updatedUser);
       // upon success, remove book's id from localStorage

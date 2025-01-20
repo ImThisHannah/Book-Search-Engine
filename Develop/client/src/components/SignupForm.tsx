@@ -6,6 +6,9 @@ import { createUser } from '../utils/API';
 import Auth from '../utils/auth';
 import type { User } from '../models/User';
 
+//TO DO: `SignupForm.tsx`: Replace the `addUser()` functionality imported from 
+// the `API` file with the `ADD_USER` mutation functionality.
+
 // biome-ignore lint/correctness/noEmptyPattern: <explanation>
 const SignupForm = ({}: { handleModalClose: () => void }) => {
   // set initial form state

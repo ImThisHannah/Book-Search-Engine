@@ -3,6 +3,9 @@ import path from 'node:path';
 import db from './config/connection.js';
 import routes from './routes/index.js';
 
+//TO DO: Implement the Apollo Server 
+// and apply it to the Express server as middleware.
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 

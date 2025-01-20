@@ -3,6 +3,9 @@ import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 
+//TO DO: LoginForm.tsx`: Replace the `loginUser()` functionality imported from the `API` file
+// with the `LOGIN_USER` mutation functionality.
+
 import { loginUser } from '../utils/API';
 import Auth from '../utils/auth';
 import type { User } from '../models/User';

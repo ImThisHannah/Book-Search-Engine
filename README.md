@@ -16,6 +16,8 @@ SO THAT I can keep a list of books to purchase
 
 you’ll need to do the following:
 
+npm i --save-dev @types/node
+
 1. Set up an Apollo Server to use GraphQL queries and mutations to fetch and modify data, replacing the existing RESTful API.
 
 2. Modify the existing authentication middleware so that it works in the context of a GraphQL API.
