@@ -1,87 +1,65 @@
-import { User } from '../models/user'; // User model
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { AuthenticationError } from 'apollo-server-express';
+import type IUserContext from '../interfaces/UserContext.js';
+import type IUserDocument from '../interfaces/UserDocument.js';
+import type IBookInput from '../interfaces/BookInput.js';
+import { User } from '../models/index.js';
+import { signToken, AuthenticationError } from '../services/auth-service.js';
 
-// Helper function to generate a JWT token
-const generateToken = (user: any) => {
-  return jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '1h' });
-};
-
-export const resolvers = {
+const resolvers = {
   Query: {
-    // `me` query to get the currently logged-in user.
-    me: async (_: any, __: any, context: any) => {
-      if (!context.user) {
-        throw new AuthenticationError('You must be logged in');
+    me: async (_parent: any, _args: any, context: IUserContext): Promise<IUserDocument | null> => {
+      
+      if (context.user) {
+
+        const userData = await User.findOne({ _id: context.user._id }).select('-__v -password');
+        return userData;
       }
-      return await User.findById(context.user.userId);
-    }
+      throw new AuthenticationError('User not authenticated');
+    },
   },
-
   Mutation: {
-    // `login` mutation to authenticate user and return JWT token
-    login: async (_: any, { email, password }: { email: string; password: string }) => {
-      const user = await User.findOne({ email });
-      if (!user) {
-        throw new AuthenticationError('Invalid credentials');
-      }
-
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        throw new AuthenticationError('Invalid credentials');
-      }
-
-      const token = generateToken(user);
+    addUser: async (_parent: any, args: any): Promise<{ token: string; user: IUserDocument }> => {
+      const user = await User.create(args);
+      const token = signToken(user.username, user.email, user._id);
+            
       return { token, user };
     },
+    login: async (_parent: any, { email, password }: { email: string; password: string }): Promise<{ token: string; user: IUserDocument }> => {
+      const user = await User.findOne({ email });
 
-    // `addUser` mutation to create a new user
-    addUser: async (_: any, { username, email, password }: { username: string; email: string; password: string }) => {
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        throw new Error('User already exists');
+      if (!user || !(await user.isCorrectPassword(password))) {
+        throw new AuthenticationError('Invalid credentials');
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = await User.create({ username, email, password: hashedPassword });
-
-      const token = generateToken(newUser);
-      return { token, user: newUser };
+      const token = signToken(user.username, user.email, user._id);
+      return { token, user };
     },
+    saveBook: async (_parent: any, { bookData }: { bookData: IBookInput }, context: IUserContext): Promise<IUserDocument | null> => {
+      if (context.user) {
+        const updatedUser = await User.findByIdAndUpdate(
+          { _id: context.user._id },
+          { $push: { savedBooks: bookData } },
+          { new: true }
+        );
 
-    // `saveBook` mutation to save a book to the user's list of saved books
-    saveBook: async (_: any, { bookInput }: { bookInput: any }, context: any) => {
-      if (!context.user) {
-        throw new AuthenticationError('You must be logged in');
+        return updatedUser;
       }
 
-      const user = await User.findById(context.user.userId);
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      user.savedBooks.push(bookInput);
-      await user.save();
-
-      return user;
+      throw new AuthenticationError('User not authenticated');
     },
+    removeBook: async (_parent: any, { bookId }: { bookId: string }, context: IUserContext): Promise<IUserDocument | null> => {
+      if (context.user) {
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $pull: { savedBooks: { bookId } } },
+          { new: true }
+        );
 
-    // `removeBook` mutation to remove a book from the user's saved books
-    removeBook: async (_: any, { bookId }: { bookId: string }, context: any) => {
-      if (!context.user) {
-        throw new AuthenticationError('You must be logged in');
+        return updatedUser;
       }
 
-      const user = await User.findById(context.user.userId);
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      user.savedBooks = user.savedBooks.filter((book: any) => book.bookId !== bookId);
-      await user.save();
-
-      return user;
-    }
-  }
+      throw new AuthenticationError('User not authenticated');
+    },
+  },
 };
+
+export default resolvers;
