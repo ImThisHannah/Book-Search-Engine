@@ -1,12 +1,9 @@
-// see SignupForm.js for comments
 
 import { useState, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import type { ChangeEvent, FormEvent } from 'react';
-
 import { useMutation } from '@apollo/client';
 import { LOGIN_USER } from '../utils/mutations';
-
 import Auth from '../utils/auth';
 
 const LoginForm = ({}: { handleModalClose: () => void }) => {
@@ -48,7 +45,6 @@ const LoginForm = ({}: { handleModalClose: () => void }) => {
       console.error(e);
     }
 
-    // clear form values
     setUserFormData({
       email: '',
       password: '',
