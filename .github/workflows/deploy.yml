@@ -1,0 +1,29 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches:
+      - main # Trigger the workflow on pushes to the 'main' branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to Render
+        uses: render-inc/deploy@v1
+        with:
+          api_token: ${{ secrets.RENDER_API_TOKEN }} # Replace with your Render API token
+          service_id: ${{ secrets.RENDER_SERVICE_ID }} # Replace with your Render service ID
+          build_command: |
+            cd client 
+            npm run build 
+          deploy_wait: true
