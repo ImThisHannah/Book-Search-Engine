@@ -4,10 +4,10 @@ dotenv.config();
 import mongoose from 'mongoose';
 
 // Get the MongoDB URI from environment variables
-const mongoURI = process.env.MONGODB_URI;
+const mongoURI = process.env.DATABASE_URL;
 
 if (!mongoURI) {
-  console.error('MongoDB URI is not defined in the .env file');
+  console.error('DATABASE_URL is not defined in the .env file');
   process.exit(1); 
 }
 
