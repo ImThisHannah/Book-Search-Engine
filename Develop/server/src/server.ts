@@ -43,7 +43,11 @@ const startApolloServer = async () => {
       res.sendFile(path.join(__dirname, '../client/dist/index.html'));
     });
   }
-
+     // Add health check endpoint with type annotations
+     app.get('/health', (res: Response) => {
+      res.status(200).send('OK');
+  });
+ 
   app.listen(PORT, () => {
     console.log(`API server running on port ${PORT}!`);
     console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
